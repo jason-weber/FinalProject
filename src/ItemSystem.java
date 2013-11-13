@@ -90,4 +90,8 @@ public class ItemSystem {
 		String query = "CREATE TABLE " + tableName + "(" + sqlParameters + ")";
 		statement.execute(query);
 	}
+	
+	
+	
+	
 }
