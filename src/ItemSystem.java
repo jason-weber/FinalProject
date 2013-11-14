@@ -63,15 +63,102 @@ public class ItemSystem {
 				itemId + ", " + price + ", " + imageURL + ")");
 	}
 	
-	//Selects all Items in the item table and returns them as a string
-	public String getAllItems() throws SQLException{
+	//Selects all ItemIds and CharacterIds in the INVENTORY table and returns them as a string[] ArrayList
+	public ArrayList<String[]> getInventories() throws SQLException{
 		Statement statement = this.connection.createStatement();
-		ResultSet rs = statement.executeQuery("SELECT * FROM Item");
-		String result = "ItemId | Price | ImageURL\n";
-		while(rs.next()){
-			result += rs.getInt("itemId") + " | ";
-			result += rs.getInt("price") + " | ";
-			result += rs.getString("imageURL") + "\n";
+		ResultSet rs = statement.executeQuery("SELECT * FROM INVENTORY");
+				
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		for(int i = 0; rs.next(); i++){
+			result.add(new String[2]);
+			result.get(i)[0] = Integer.toString(rs.getInt("characterId"));
+			result.get(i)[1] = Integer.toString(rs.getInt("itemId"));
+		}
+			
+		return result;
+	}
+	
+	//Selects all Characters in the CHARACTERS table and returns them as a string[] ArrayList
+	public ArrayList<String[]> getAllCharacters() throws SQLException{
+		Statement statement = this.connection.createStatement();
+		ResultSet rs = statement.executeQuery("SELECT * FROM CHARACTERS");
+					
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		for(int i = 0; rs.next(); i++){
+			result.add(new String[7]);
+			result.get(i)[0] = Integer.toString(rs.getInt("characterId"));
+			result.get(i)[1] = rs.getString("name");
+			result.get(i)[2] = Integer.toString(rs.getInt("health"));
+			result.get(i)[3] = Integer.toString(rs.getInt("attack"));
+			result.get(i)[4] = Integer.toString(rs.getInt("defense"));
+			result.get(i)[5] = Integer.toString(rs.getInt("specialAttack"));
+			result.get(i)[6] = Integer.toString(rs.getInt("specialDefense"));
+		}
+				
+		return result;
+	}
+	
+	//Selects all Consumables in the CONSUMABLE table and returns them as a string[] ArrayList
+	public ArrayList<String[]> getAllConsumables() throws SQLException{
+		Statement statement = this.connection.createStatement();
+		ResultSet rs = statement.executeQuery("SELECT * FROM CONSUMABLE");
+				
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		for(int i = 0; rs.next(); i++){
+			result.add(new String[3]);
+			result.get(i)[0] = Integer.toString(rs.getInt("itemId"));
+			result.get(i)[1] = rs.getString("effectedStat");
+			result.get(i)[2] = Integer.toString(rs.getInt("amount"));
+		}
+			
+		return result;
+	}
+	
+	//Selects all Armor in the ARMOR table and returns them as a string[] ArrayList
+	public ArrayList<String[]> getAllArmor() throws SQLException{
+		Statement statement = this.connection.createStatement();
+		ResultSet rs = statement.executeQuery("SELECT * FROM ARMOR");
+			
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		for(int i = 0; rs.next(); i++){
+			result.add(new String[3]);
+			result.get(i)[0] = Integer.toString(rs.getInt("itemId"));
+			result.get(i)[1] = Integer.toString(rs.getInt("defense"));
+			result.get(i)[2] = Integer.toString(rs.getInt("specialDefense"));
+		}
+		
+		return result;
+	}
+	
+	
+	//Selects all Weapons in the WEAPON table and returns them as a string[] ArrayList
+	public ArrayList<String[]> getAllWeapons() throws SQLException{
+		Statement statement = this.connection.createStatement();
+		ResultSet rs = statement.executeQuery("SELECT * FROM WEAPON");
+		
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		for(int i = 0; rs.next(); i++){
+			result.add(new String[3]);
+			result.get(i)[0] = Integer.toString(rs.getInt("itemId"));
+			result.get(i)[1] = Integer.toString(rs.getInt("attack"));
+			result.get(i)[2] = Integer.toString(rs.getInt("specialAttack"));
+		}
+		
+		return result;
+	
+	}
+	
+	//Selects all Items in the item table and returns them as a string[] ArrayList
+	public ArrayList<String[]> getAllItems() throws SQLException{
+		Statement statement = this.connection.createStatement();
+		ResultSet rs = statement.executeQuery("SELECT * FROM ITEM");
+	
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		for(int i = 0; rs.next(); i++){
+			result.add(new String[3]);
+			result.get(i)[0] = Integer.toString(rs.getInt("itemId"));
+			result.get(i)[1] = Integer.toString(rs.getInt("price"));
+			result.get(i)[2] = rs.getString("imageURL");
 		}
 		
 		return result;

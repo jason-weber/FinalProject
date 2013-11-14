@@ -5,12 +5,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class SystemGUI extends JFrame{
 	//Constants to access table tabs
-	public static int ITEMs = 0;
+	public static int ITEMS = 0;
 	public static int WEAPONS = 1;
 	public static int ARMOR = 2;
 	public static int CONSUMABLES = 3;
@@ -60,6 +62,60 @@ public class SystemGUI extends JFrame{
 		
 		//Add tabPane to window
 		this.add(tabPane, BorderLayout.CENTER);
+		
+		ArrayList<String[]> items = this.itemSystem.getAllItems();
+		String[] temp = new String[3];
+		for(int i = 0; i < items.size(); i++){
+			temp[0] = items.get(i)[0];
+			temp[1] = items.get(i)[1];
+			temp[2] = items.get(i)[2];
+			this.insertRow(SystemGUI.ITEMS, temp);
+		}
+		
+		items = this.itemSystem.getAllWeapons();
+		for(int i = 0; i < items.size(); i++){
+			temp[0] = items.get(i)[0];
+			temp[1] = items.get(i)[1];
+			temp[2] = items.get(i)[2];
+			this.insertRow(SystemGUI.WEAPONS, temp);
+		}
+		
+		items = this.itemSystem.getAllArmor();
+		for(int i = 0; i < items.size(); i++){
+			temp[0] = items.get(i)[0];
+			temp[1] = items.get(i)[1];
+			temp[2] = items.get(i)[2];
+			this.insertRow(SystemGUI.ARMOR, temp);
+		}
+		
+		items = this.itemSystem.getAllConsumables();
+		for(int i = 0; i < items.size(); i++){
+			temp[0] = items.get(i)[0];
+			temp[1] = items.get(i)[1];
+			temp[2] = items.get(i)[2];
+			this.insertRow(SystemGUI.CONSUMABLES, temp);
+		}
+		
+		items = this.itemSystem.getAllCharacters();
+		temp = new String[7];
+		for(int i = 0; i < items.size(); i++){
+			temp[0] = items.get(i)[0];
+			temp[1] = items.get(i)[1];
+			temp[2] = items.get(i)[2];
+			temp[3] = items.get(i)[3];
+			temp[4] = items.get(i)[4];
+			temp[5] = items.get(i)[5];
+			temp[6] = items.get(i)[6];
+			this.insertRow(SystemGUI.CHARACTERS, temp);
+		}
+		
+		items = this.itemSystem.getInventories();
+		temp = new String[2];
+		for(int i = 0; i < items.size(); i++){
+			temp[0] = items.get(i)[0];
+			temp[1] = items.get(i)[1];
+			this.insertRow(SystemGUI.INVENTORY, temp);
+		}
 		
 		//Add closeListener to perform the closing operations
 		this.addWindowListener(new closeListener());	
