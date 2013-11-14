@@ -1,5 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -12,12 +14,12 @@ import javax.swing.table.DefaultTableModel;
 
 public class SystemGUI extends JFrame{
 	//Constants to access table tabs
-	public static int ITEMS = 0;
-	public static int WEAPONS = 1;
-	public static int ARMOR = 2;
-	public static int CONSUMABLES = 3;
-	public static int CHARACTERS = 4;
-	public static int INVENTORY = 5;
+	public static final int ITEMS = 0;
+	public static final int WEAPONS = 1;
+	public static final int ARMOR = 2;
+	public static final int CONSUMABLES = 3;
+	public static final int CHARACTERS = 4;
+	public static final int INVENTORY = 5;
 	
 	
 	//Manages all database interactions
@@ -63,64 +65,30 @@ public class SystemGUI extends JFrame{
 		//Add tabPane to window
 		this.add(tabPane, BorderLayout.CENTER);
 		
-		ArrayList<String[]> items = this.itemSystem.getAllItems();
-		String[] temp = new String[3];
-		for(int i = 0; i < items.size(); i++){
-			temp[0] = items.get(i)[0];
-			temp[1] = items.get(i)[1];
-			temp[2] = items.get(i)[2];
-			this.insertRow(SystemGUI.ITEMS, temp);
-		}
-		
-		items = this.itemSystem.getAllWeapons();
-		for(int i = 0; i < items.size(); i++){
-			temp[0] = items.get(i)[0];
-			temp[1] = items.get(i)[1];
-			temp[2] = items.get(i)[2];
-			this.insertRow(SystemGUI.WEAPONS, temp);
-		}
-		
-		items = this.itemSystem.getAllArmor();
-		for(int i = 0; i < items.size(); i++){
-			temp[0] = items.get(i)[0];
-			temp[1] = items.get(i)[1];
-			temp[2] = items.get(i)[2];
-			this.insertRow(SystemGUI.ARMOR, temp);
-		}
-		
-		items = this.itemSystem.getAllConsumables();
-		for(int i = 0; i < items.size(); i++){
-			temp[0] = items.get(i)[0];
-			temp[1] = items.get(i)[1];
-			temp[2] = items.get(i)[2];
-			this.insertRow(SystemGUI.CONSUMABLES, temp);
-		}
-		
-		items = this.itemSystem.getAllCharacters();
-		temp = new String[7];
-		for(int i = 0; i < items.size(); i++){
-			temp[0] = items.get(i)[0];
-			temp[1] = items.get(i)[1];
-			temp[2] = items.get(i)[2];
-			temp[3] = items.get(i)[3];
-			temp[4] = items.get(i)[4];
-			temp[5] = items.get(i)[5];
-			temp[6] = items.get(i)[6];
-			this.insertRow(SystemGUI.CHARACTERS, temp);
-		}
-		
-		items = this.itemSystem.getInventories();
-		temp = new String[2];
-		for(int i = 0; i < items.size(); i++){
-			temp[0] = items.get(i)[0];
-			temp[1] = items.get(i)[1];
-			this.insertRow(SystemGUI.INVENTORY, temp);
-		}
+		//Insert all data from database into GUI tables
+		this.insertMultipleRows(SystemGUI.ITEMS, this.itemSystem.getAllItems());
+		this.insertMultipleRows(SystemGUI.WEAPONS, this.itemSystem.getAllWeapons());
+		this.insertMultipleRows(SystemGUI.ARMOR, this.itemSystem.getAllArmor());
+		this.insertMultipleRows(SystemGUI.CONSUMABLES, this.itemSystem.getAllConsumables());
+		this.insertMultipleRows(SystemGUI.CHARACTERS, this.itemSystem.getAllCharacters());
+		this.insertMultipleRows(SystemGUI.INVENTORY, this.itemSystem.getInventories());
 		
 		//Add closeListener to perform the closing operations
-		this.addWindowListener(new closeListener());	
+		this.addWindowListener(new closeListener());
+		
+		JButton createCharacter = new JButton("Create new character");
+		createCharacter.setActionCommand("createCharacter");
+		createCharacter.addActionListener(new ButtonListener());
+		this.add(createCharacter, BorderLayout.SOUTH);
 		this.setVisible(true);
 		
+	}
+	
+	//inserts rows.size() number of rows into the table at tableIndex
+	public void insertMultipleRows(int tableIndex, ArrayList<String[]> rows){
+		for(int i = 0; i < rows.size(); i++){
+			this.insertRow(tableIndex, rows.get(i));
+		}
 	}
 	
 	//Creates a table with the specified columnNames as the column headers
@@ -154,6 +122,64 @@ public class SystemGUI extends JFrame{
 		}
 	}
 	
+	
+	private class ButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			switch(e.getActionCommand()){
+			case "createCharacter":
+				JLabel nameL = new JLabel("NameL: ");
+				JLabel healthL = new JLabel("Health: ");
+				JLabel attackL = new JLabel("Attack: ");
+				JLabel defenseL = new JLabel("Defense: ");
+				JLabel specialAttackL = new JLabel("Special Attack: ");
+				JLabel specialDefenseL = new JLabel("Special Defense: ");
+				
+				JTextField name = new JTextField(10);
+				JTextField health = new JTextField(10);
+				JTextField attack = new JTextField(10);
+				JTextField defense = new JTextField(10);
+				JTextField specialAttack = new JTextField(10);
+				JTextField specialDefense = new JTextField(10);
+				
+				JPanel panel = new JPanel();
+				panel.setLayout(new GridLayout(6, 2));
+				panel.add(nameL);
+				panel.add(name);
+				panel.add(healthL);
+				panel.add(health);
+				panel.add(attackL);
+				panel.add(attack);
+				panel.add(defenseL);
+				panel.add(defense);
+				panel.add(specialAttackL);
+				panel.add(specialAttack);
+				panel.add(specialDefenseL);
+				panel.add(specialDefense);
+				
+				int result = JOptionPane.showConfirmDialog(null,
+						panel, "Please enter all information for the character: ", 
+						JOptionPane.OK_CANCEL_OPTION);
+				if(result == JOptionPane.OK_OPTION){
+					try {
+						SystemGUI.this.itemSystem.insertCharacter(name.getText(),
+								health.getText(), attack.getText(), defense.getText(),
+								specialAttack.getText(), specialDefense.getText());
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				
+				break;
+			default: 
+				break;
+			}
+			
+		}
+		
+	}
 	
 	//This just implements a custom function when the window closes to 
 	//Close any connection to the database and cleanup anything as needed
@@ -207,9 +233,7 @@ public class SystemGUI extends JFrame{
 
 		@Override
 		public void windowOpened(WindowEvent arg0) {
-			// TODO Auto-generated method stub
-			
+			// TODO Auto-generated method stub	
 		}
-		
 	}
 }

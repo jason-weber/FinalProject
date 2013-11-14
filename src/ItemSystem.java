@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class ItemSystem {
 	private Connection connection;
@@ -19,10 +18,10 @@ public class ItemSystem {
 	}
 	
 	//Inserts a new Character Tuple into the Character table
-	public void insertCharacter(int characterId, String name, int health, int attack, int defense, int specialAttack, int specialDefense) throws SQLException{
+	public void insertCharacter( String name, String health, String attack, 
+			String defense, String specialAttack, String specialDefense) throws SQLException{
 		Statement statement = this.connection.createStatement();
-		statement.execute("INSERT INTO Character VALUES(" + 
-				characterId + ", " + name + ", " + health + ", " +
+		statement.execute("INSERT INTO Character VALUES(NULL, " + name + ", " + health + ", " +
 				attack + ", " + defense + ", " + specialAttack + ", " + specialDefense + ")");
 	}
 	
@@ -169,16 +168,4 @@ public class ItemSystem {
 	public void close() throws SQLException{
 		this.connection.close();
 	}
-	
-	//Creates a new table with tableName and relevant parameters
-	private void createTable(String tableName, String sqlParameters) throws SQLException{
-		Statement statement = this.connection.createStatement();
-		statement.setQueryTimeout(30);
-		String query = "CREATE TABLE " + tableName + "(" + sqlParameters + ")";
-		statement.execute(query);
-	}
-	
-	
-	
-	
 }
