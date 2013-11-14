@@ -1,6 +1,4 @@
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -124,54 +122,76 @@ public class SystemGUI extends JFrame{
 	
 	
 	private class ButtonListener implements ActionListener{
-
+		private void createCharacterDialog(){
+			JLabel nameL = new JLabel("NameL: ");
+			JLabel healthL = new JLabel("Health: ");
+			JLabel attackL = new JLabel("Attack: ");
+			JLabel defenseL = new JLabel("Defense: ");
+			JLabel specialAttackL = new JLabel("Special Attack: ");
+			JLabel specialDefenseL = new JLabel("Special Defense: ");
+			
+			JTextField name = new JTextField(10);
+			JTextField health = new JTextField(10);
+			JTextField attack = new JTextField(10);
+			JTextField defense = new JTextField(10);
+			JTextField specialAttack = new JTextField(10);
+			JTextField specialDefense = new JTextField(10);
+			
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(6, 2));
+			panel.add(nameL);
+			panel.add(name);
+			panel.add(healthL);
+			panel.add(health);
+			panel.add(attackL);
+			panel.add(attack);
+			panel.add(defenseL);
+			panel.add(defense);
+			panel.add(specialAttackL);
+			panel.add(specialAttack);
+			panel.add(specialDefenseL);
+			panel.add(specialDefense);
+			
+			int result = JOptionPane.showConfirmDialog(null,
+					panel, "Please enter all information for the character: ", 
+					JOptionPane.OK_CANCEL_OPTION);
+			if(result == JOptionPane.OK_OPTION){
+				try {
+					int id = SystemGUI.this.itemSystem.getCharacterCount() + 1;
+					String[] row = {Integer.toString(id), name.getText(), health.getText(), attack.getText(),
+							defense.getText(), specialAttack.getText(), specialDefense.getText()};
+					this.parseCharacterDialog(row);
+					
+					SystemGUI.this.itemSystem.insertCharacter(name.getText(),
+							health.getText(), attack.getText(), defense.getText(),
+							specialAttack.getText(), specialDefense.getText());
+					
+					
+					
+					SystemGUI.this.insertRow(SystemGUI.CHARACTERS, row);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch(NumberFormatException e){
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		private boolean parseCharacterDialog(String[] characterData) throws NumberFormatException{
+			for(int i = 1; i < characterData.length; i++){
+				Integer.parseInt(characterData[i]);
+			}
+			return true;
+		}
+		
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			switch(e.getActionCommand()){
 			case "createCharacter":
-				JLabel nameL = new JLabel("NameL: ");
-				JLabel healthL = new JLabel("Health: ");
-				JLabel attackL = new JLabel("Attack: ");
-				JLabel defenseL = new JLabel("Defense: ");
-				JLabel specialAttackL = new JLabel("Special Attack: ");
-				JLabel specialDefenseL = new JLabel("Special Defense: ");
-				
-				JTextField name = new JTextField(10);
-				JTextField health = new JTextField(10);
-				JTextField attack = new JTextField(10);
-				JTextField defense = new JTextField(10);
-				JTextField specialAttack = new JTextField(10);
-				JTextField specialDefense = new JTextField(10);
-				
-				JPanel panel = new JPanel();
-				panel.setLayout(new GridLayout(6, 2));
-				panel.add(nameL);
-				panel.add(name);
-				panel.add(healthL);
-				panel.add(health);
-				panel.add(attackL);
-				panel.add(attack);
-				panel.add(defenseL);
-				panel.add(defense);
-				panel.add(specialAttackL);
-				panel.add(specialAttack);
-				panel.add(specialDefenseL);
-				panel.add(specialDefense);
-				
-				int result = JOptionPane.showConfirmDialog(null,
-						panel, "Please enter all information for the character: ", 
-						JOptionPane.OK_CANCEL_OPTION);
-				if(result == JOptionPane.OK_OPTION){
-					try {
-						SystemGUI.this.itemSystem.insertCharacter(name.getText(),
-								health.getText(), attack.getText(), defense.getText(),
-								specialAttack.getText(), specialDefense.getText());
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-				
+				this.createCharacterDialog();
 				break;
 			default: 
 				break;

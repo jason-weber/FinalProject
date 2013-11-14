@@ -17,11 +17,18 @@ public class ItemSystem {
 		this.connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath);
 	}
 	
+	public int getCharacterCount() throws SQLException{
+		Statement statement = this.connection.createStatement();
+		ResultSet rs = statement.executeQuery("SELECT COUNT(*) AS cnt FROM CHARACTERS");
+		rs.next();
+		return rs.getInt("cnt");
+	}
+	
 	//Inserts a new Character Tuple into the Character table
 	public void insertCharacter( String name, String health, String attack, 
 			String defense, String specialAttack, String specialDefense) throws SQLException{
 		Statement statement = this.connection.createStatement();
-		statement.execute("INSERT INTO Character VALUES(NULL, " + name + ", " + health + ", " +
+		statement.execute("INSERT INTO Characters VALUES(NULL, '" + name + "', " + health + ", " +
 				attack + ", " + defense + ", " + specialAttack + ", " + specialDefense + ")");
 	}
 	
