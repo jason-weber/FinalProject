@@ -24,6 +24,7 @@ public class SystemGUI extends JFrame{
 	private ItemSystem itemSystem;
 	//Contains all tables as separate tabs in the tabPane
 	private JTabbedPane tabPane;
+	private ButtonListener buttonListener;
 	
 	
 	public SystemGUI(String itemDatabasePath) throws ClassNotFoundException, SQLException{
@@ -33,6 +34,8 @@ public class SystemGUI extends JFrame{
 		this.setSize(800, 600);
 		//Do nothing when closed so our closeListener can perform the close operations
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		
+		this.buttonListener = new ButtonListener();
 		
 		//Setup the layout for the whole window
 		BorderLayout layout = new BorderLayout();
@@ -72,11 +75,11 @@ public class SystemGUI extends JFrame{
 		this.insertMultipleRows(SystemGUI.INVENTORY, this.itemSystem.getInventories());
 		
 		//Add closeListener to perform the closing operations
-		this.addWindowListener(new closeListener());
+		this.addWindowListener(new CloseListener());
 		
-		JButton createCharacter = new JButton("Create new character");
-		createCharacter.setActionCommand("createCharacter");
-		createCharacter.addActionListener(new ButtonListener());
+		JButton createCharacter = new JButton("Insert New");
+		createCharacter.setActionCommand("insert");
+		createCharacter.addActionListener(this.buttonListener);
 		this.add(createCharacter, BorderLayout.SOUTH);
 		this.setVisible(true);
 		
@@ -123,7 +126,7 @@ public class SystemGUI extends JFrame{
 	
 	private class ButtonListener implements ActionListener{
 		private void createCharacterDialog(){
-			JLabel nameL = new JLabel("NameL: ");
+			JLabel nameL = new JLabel("Name: ");
 			JLabel healthL = new JLabel("Health: ");
 			JLabel attackL = new JLabel("Attack: ");
 			JLabel defenseL = new JLabel("Defense: ");
@@ -166,9 +169,8 @@ public class SystemGUI extends JFrame{
 							health.getText(), attack.getText(), defense.getText(),
 							specialAttack.getText(), specialDefense.getText());
 					
-					
-					
 					SystemGUI.this.insertRow(SystemGUI.CHARACTERS, row);
+				
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -178,6 +180,48 @@ public class SystemGUI extends JFrame{
 			}
 		}
 		
+		private void createItemDialog(){
+			JLabel choicesL = new JLabel("Choose an item type: ");
+			String[] choices = {"Basic Item", "Weapon", "Armor", "Consumable"};
+			JComboBox dropDown = new JComboBox(choices);
+			JLabel priceL = new JLabel("Price: ");
+			JLabel imageL = new JLabel("Image URL: ");
+			JTextField price = new JTextField();
+			JTextField image = new JTextField();
+			
+			JPanel panel = new JPanel(new GridLayout(3, 2));
+			panel.add(choicesL);
+			panel.add(dropDown);
+			panel.add(priceL);
+			panel.add(price);
+			panel.add(imageL);
+			panel.add(image);
+			
+			int result = JOptionPane.showConfirmDialog(null, panel, "Enter the basic information for the item: ", JOptionPane.OK_CANCEL_OPTION);
+			if(result == JOptionPane.OK_OPTION){
+				try{
+					int id = SystemGUI.this.itemSystem.getItemCount() + 1;
+					String[] row = {Integer.toString(id), price.getText(), image.getText()};
+					SystemGUI.this.itemSystem.insertNewItem(price.getText(), image.getText());
+					SystemGUI.this.insertRow(SystemGUI.ITEMS, row);
+					
+					switch((String)dropDown.getSelectedItem()){
+					case "Weapon":
+						break;
+					case "Armor":
+						break;
+					case "Consumable":
+						break;
+					default:
+						break;
+					}
+					
+					
+				}catch (SQLException e){
+					e.printStackTrace();
+				}
+			}
+		}
 		
 		private boolean parseCharacterDialog(String[] characterData) throws NumberFormatException{
 			for(int i = 1; i < characterData.length; i++){
@@ -190,8 +234,29 @@ public class SystemGUI extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			switch(e.getActionCommand()){
-			case "createCharacter":
-				this.createCharacterDialog();
+			case "insert":
+				int currentTab = SystemGUI.this.tabPane.getSelectedIndex();
+				if(currentTab >= 0){
+					switch(currentTab){
+					case SystemGUI.ITEMS:
+						this.createItemDialog();
+						break;
+					case SystemGUI.WEAPONS:
+						break;
+					case SystemGUI.ARMOR:
+						break;
+					case SystemGUI.CONSUMABLES:
+						break;
+					case SystemGUI.CHARACTERS:
+						this.createCharacterDialog();
+						break;
+					case SystemGUI.INVENTORY:
+						break;
+					default:
+						break;
+					}
+					
+				}
 				break;
 			default: 
 				break;
@@ -203,7 +268,7 @@ public class SystemGUI extends JFrame{
 	
 	//This just implements a custom function when the window closes to 
 	//Close any connection to the database and cleanup anything as needed
-	private class closeListener implements WindowListener{
+	private class CloseListener implements WindowListener{
 
 		
 		@Override
