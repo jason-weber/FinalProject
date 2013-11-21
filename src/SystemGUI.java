@@ -123,7 +123,7 @@ public class SystemGUI extends JFrame{
 		}
 	}
 	
-	
+	//ADD ERROR CODE
 	private class ButtonListener implements ActionListener{
 		private void createCharacterDialog(){
 			JLabel nameL = new JLabel("Name: ");
@@ -156,7 +156,7 @@ public class SystemGUI extends JFrame{
 			panel.add(specialDefense);
 			
 			int result = JOptionPane.showConfirmDialog(null,
-					panel, "Please enter all information for the character: ", 
+					panel, "Please enter all information for the character", 
 					JOptionPane.OK_CANCEL_OPTION);
 			if(result == JOptionPane.OK_OPTION){
 				try {
@@ -180,10 +180,109 @@ public class SystemGUI extends JFrame{
 			}
 		}
 		
-		private void createItemDialog(){
+		private void createWeaponDialog(int id){
+			JLabel attackL = new JLabel("Attack: ");
+			JTextField attack = new JTextField();
+			JLabel specialAttackL = new JLabel("Special Attack: ");
+			JTextField specialAttack = new JTextField();
+			
+			JPanel panel = new JPanel(new GridLayout(2, 2));
+			panel.add(attackL);
+			panel.add(attack);
+			panel.add(specialAttackL);
+			panel.add(specialAttack);
+			
+			int result = JOptionPane.showConfirmDialog(null, panel, "Enter Weapon information", JOptionPane.OK_CANCEL_OPTION);
+			if(result == JOptionPane.OK_OPTION){
+				try{
+					String[] row = {Integer.toString(id), attack.getText(), specialAttack.getText() };
+					SystemGUI.this.itemSystem.insertWeapon(id, attack.getText(), specialAttack.getText());
+					SystemGUI.this.insertRow(SystemGUI.WEAPONS, row);
+				} catch(SQLException e){
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		private void createArmorDialog(int id){
+			JLabel defenseL = new JLabel("Defense: ");
+			JTextField defense = new JTextField();
+			JLabel specialDefenseL = new JLabel("Special Defense: ");
+			JTextField specialDefense = new JTextField();
+			
+			JPanel panel = new JPanel(new GridLayout(2, 2));
+			panel.add(defenseL);
+			panel.add(defense);
+			panel.add(specialDefenseL);
+			panel.add(specialDefense);
+			
+			int result = JOptionPane.showConfirmDialog(null, panel, "Enter Armor information", JOptionPane.OK_CANCEL_OPTION);
+			if(result == JOptionPane.OK_OPTION){
+				try{
+					String[] row = {Integer.toString(id), defense.getText(), specialDefense.getText() };
+					SystemGUI.this.itemSystem.insertArmor(id, defense.getText(), specialDefense.getText());
+					SystemGUI.this.insertRow(SystemGUI.ARMOR, row);
+				} catch(SQLException e){
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		private void createConsumableDialog(int id){
+			JLabel effectedStatL = new JLabel("Effected Stat: ");
+			String[] stats = {"Health", "Attack", "Special Attack", "Defense", "Special Defense" };
+			JComboBox<String> effectedStat = new JComboBox<String>(stats);
+			JLabel valueL = new JLabel("Value: ");
+			JTextField value = new JTextField();
+			
+			JPanel panel = new JPanel(new GridLayout(2, 2));
+			panel.add(effectedStatL);
+			panel.add(effectedStat);
+			panel.add(valueL);
+			panel.add(value);
+			
+			int result = JOptionPane.showConfirmDialog(null, panel, "Enter Consumable information", JOptionPane.OK_CANCEL_OPTION);
+			if(result == JOptionPane.OK_OPTION){
+				try{
+					String[] row = {Integer.toString(id), (String)effectedStat.getSelectedItem(), value.getText() };
+					SystemGUI.this.itemSystem.insertConsumable(id, (String)effectedStat.getSelectedItem(), value.getText());
+					SystemGUI.this.insertRow(SystemGUI.CONSUMABLES, row);
+				} catch(SQLException e){
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		private void addToInventoryDialog(){
+			JLabel itemIdL = new JLabel("Item Id: ");
+			JTextField itemId = new JTextField();
+			JLabel characterIdL = new JLabel("Character Id: ");
+			JTextField characterId = new JTextField();
+			
+			JPanel panel = new JPanel(new GridLayout(2, 2));
+			panel.add(itemIdL);
+			panel.add(itemId);
+			panel.add(characterIdL);
+			panel.add(characterId);
+			
+			int result = JOptionPane.showConfirmDialog(null, panel, "Enter existing Ids to add to the character's inventory", JOptionPane.OK_CANCEL_OPTION);
+			if(result == JOptionPane.OK_OPTION){
+				try {
+					String[] row = {itemId.getText(), characterId.getText()};
+					SystemGUI.this.itemSystem.insertIntoInventory(characterId.getText(), itemId.getText());
+					SystemGUI.this.insertRow(SystemGUI.INVENTORY, row);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		private void createItemDialog(String defaultCheckboxVal){
 			JLabel choicesL = new JLabel("Choose an item type: ");
 			String[] choices = {"Basic Item", "Weapon", "Armor", "Consumable"};
-			JComboBox dropDown = new JComboBox(choices);
+			JComboBox<String> dropDown = new JComboBox<String>(choices);
+			dropDown.setSelectedItem(defaultCheckboxVal);
 			JLabel priceL = new JLabel("Price: ");
 			JLabel imageL = new JLabel("Image URL: ");
 			JTextField price = new JTextField();
@@ -197,7 +296,7 @@ public class SystemGUI extends JFrame{
 			panel.add(imageL);
 			panel.add(image);
 			
-			int result = JOptionPane.showConfirmDialog(null, panel, "Enter the basic information for the item: ", JOptionPane.OK_CANCEL_OPTION);
+			int result = JOptionPane.showConfirmDialog(null, panel, "Enter the basic information for the item", JOptionPane.OK_CANCEL_OPTION);
 			if(result == JOptionPane.OK_OPTION){
 				try{
 					int id = SystemGUI.this.itemSystem.getItemCount() + 1;
@@ -207,10 +306,13 @@ public class SystemGUI extends JFrame{
 					
 					switch((String)dropDown.getSelectedItem()){
 					case "Weapon":
+						this.createWeaponDialog(id);
 						break;
 					case "Armor":
+						this.createArmorDialog(id);
 						break;
 					case "Consumable":
+						this.createConsumableDialog(id);
 						break;
 					default:
 						break;
@@ -238,19 +340,23 @@ public class SystemGUI extends JFrame{
 				int currentTab = SystemGUI.this.tabPane.getSelectedIndex();
 				if(currentTab >= 0){
 					switch(currentTab){
-					case SystemGUI.ITEMS:
-						this.createItemDialog();
-						break;
 					case SystemGUI.WEAPONS:
+						this.createItemDialog("Weapon");
 						break;
 					case SystemGUI.ARMOR:
+						this.createItemDialog("Armor");
 						break;
 					case SystemGUI.CONSUMABLES:
+						this.createItemDialog("Consumable");
+						break;
+					case SystemGUI.ITEMS:
+						this.createItemDialog("Basic Item");
 						break;
 					case SystemGUI.CHARACTERS:
 						this.createCharacterDialog();
 						break;
 					case SystemGUI.INVENTORY:
+						this.addToInventoryDialog();
 						break;
 					default:
 						break;

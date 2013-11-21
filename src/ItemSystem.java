@@ -40,30 +40,27 @@ public class ItemSystem {
 	}
 	
 	//Inserts an item into a character's inventory
-	public void insertIntoInventory(int characterId, int itemId) throws SQLException{
+	public void insertIntoInventory(String characterId, String itemId) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO INVENTORY VALUES(" + characterId + ", " + itemId + ")");
 	}
 	
 	//Insert a new Armor item into the Item and Armor tables
-	public void insertArmor(int itemId, String price, String imageURL, int defense, int specialDefense) throws SQLException{
-		insertNewItem(price, imageURL);
+	public void insertArmor(int itemId, String defense, String specialDefense) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO ARMOR VALUES(" + 
 				itemId + ", " + defense + ", " + specialDefense + ")");
 	}
 	
 	//Inserts a new Weapon into the Item and Weapon tables
-	public void insertWeapon(int itemId, String price, String imageURL, int attack, int specialAttack) throws SQLException{
-		insertNewItem(price, imageURL);
+	public void insertWeapon(int itemId, String attack, String specialAttack) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO WEAPON VALUES(" + 
 				itemId + ", " + attack + ", " + specialAttack + ")");
 	}
 	
 	//Inserts a new Consumable into the Item and Consumable tables
-	public void insertConsumable(int itemId, String price, String imageURL, String effectedStat, int value) throws SQLException{
-		insertNewItem(price, imageURL);
+	public void insertConsumable(int itemId, String effectedStat, String value) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO CONSUMABLE VALUES(" + 
 				itemId + ", " + effectedStat + ", " + value + ")");
