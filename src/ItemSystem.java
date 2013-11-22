@@ -17,18 +17,38 @@ public class ItemSystem {
 		this.connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath);
 	}
 		
-	public int getItemCount() throws SQLException{
-		Statement statement = this.connection.createStatement();
-		ResultSet rs = statement.executeQuery("SELECT COUNT(*) AS cnt FROM ITEM");
-		rs.next();
-		return rs.getInt("cnt");
+	public void deleteCharacter(int characterId) throws SQLException{
+		Statement statement = connection.createStatement();
+		statement.execute("DELETE FROM CHARACTERS WHERE characterId = " + characterId);
+		statement.execute("DELETE FROM INVENTORY WHERE characterId = " + characterId);
 	}
 	
-	public int getCharacterCount() throws SQLException{
+	public void removeFromInventory(int itemId, int characterId) throws SQLException{
+		Statement statement = connection.createStatement();
+		statement.execute("DELETE FROM INVENTORY WHERE itemId = " +
+				itemId + " AND characterId = " + characterId);
+	}
+	
+	public void deleteItem(String table, int id) throws SQLException{
 		Statement statement = this.connection.createStatement();
-		ResultSet rs = statement.executeQuery("SELECT COUNT(*) AS cnt FROM CHARACTERS");
-		rs.next();
-		return rs.getInt("cnt");
+		if(!table.toUpperCase().equals("ITEM")){
+			statement.execute("DELETE FROM " + table + " WHERE itemId = " + id);
+		}
+		else{
+			statement.execute("DELETE FROM WEAPON WHERE itemId = " + id);
+			statement.execute("DELETE FROM ARMOR WHERE itemId = " + id);
+			statement.execute("DELETE FROM CONSUMABLE WHERE itemId = " + id);
+		}
+		statement.execute("DELETE FROM ITEM WHERE itemId = " + id);
+	}
+	
+	public int getNextId(String tableName) throws SQLException{
+		Statement statement = this.connection.createStatement();
+		ResultSet rs = statement.executeQuery("SELECT * FROM SQLITE_SEQUENCE WHERE name = '" + tableName + "'");
+		if(rs.next()){
+			return rs.getInt("seq") + 1;
+		}
+		return 1;
 	}
 	
 	//Inserts a new Character Tuple into the Character table
@@ -63,7 +83,7 @@ public class ItemSystem {
 	public void insertConsumable(int itemId, String effectedStat, String value) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO CONSUMABLE VALUES(" + 
-				itemId + ", " + effectedStat + ", " + value + ")");
+				itemId + ", '" + effectedStat + "', " + value + ")");
 	}
 	
 	//Inserts a new generic Item into the Item table

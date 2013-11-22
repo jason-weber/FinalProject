@@ -25,6 +25,7 @@ public class SystemGUI extends JFrame{
 	//Contains all tables as separate tabs in the tabPane
 	private JTabbedPane tabPane;
 	private ButtonListener buttonListener;
+	private ArrayList<JTable> tables;
 	
 	
 	public SystemGUI(String itemDatabasePath) throws ClassNotFoundException, SQLException{
@@ -43,29 +44,45 @@ public class SystemGUI extends JFrame{
 		layout.setVgap(5);
 		this.setLayout(layout);
 		
-		//Create each tab of the tabPane
-		this.tabPane = new JTabbedPane(JTabbedPane.TOP);
-		String[] itemColumns = { "ItemId", "Price", "ImageURL" };
-		tabPane.addTab("Items", createTableTab(itemColumns));
+		this.tables = new ArrayList<JTable>();
 		
-		String[] weaponColumns = {"ItemId", "Attack", "SpecialAttack"};
-		tabPane.addTab("Weapons", createTableTab(weaponColumns));
-		
-		String[] armorColumns = {"ItemId", "Defense", "SpecialDefense"};
-		tabPane.addTab("Armor", createTableTab(armorColumns));
-		
-		String[] consumableColumns = {"ItemId", "Effected Stat", "Value"};
-		tabPane.addTab("Consumables", createTableTab(consumableColumns));
-		
-		String[] characterColumns = {"CharacterId", "Name", "Health", "Attack", "Defense", "SpecialAttack", "SpecialDefense"};
-		tabPane.addTab("Character", createTableTab(characterColumns));
-		
-		String[] inventoryColumns = {"CharacterId", "ItemId"};
-		tabPane.addTab("Inventory", createTableTab(inventoryColumns));
-		
-		//Add tabPane to window
+		//Create JTabbedPane with tables
+		this.createTabbedPane();
 		this.add(tabPane, BorderLayout.CENTER);
 		
+		this.fillTables();
+		
+		//Add closeListener to perform the closing operations
+		this.addWindowListener(new CloseListener());
+		
+		
+		this.add(this.createButtonPanel(), BorderLayout.SOUTH);
+		this.setVisible(true);
+		
+	}
+	
+	private JPanel createButtonPanel(){
+		JPanel buttonPanel = new JPanel();
+		
+		JButton insert = new JButton("Insert New");
+		insert.setActionCommand("insert");
+		insert.addActionListener(this.buttonListener);
+		buttonPanel.add(insert);
+		
+		JButton delete = new JButton("Delete Selected Row");
+		delete.setActionCommand("delete");
+		delete.addActionListener(this.buttonListener);
+		buttonPanel.add(delete);
+		
+		JButton update = new JButton("Update Selected Row");
+		update.setActionCommand("update");
+		update.addActionListener(this.buttonListener);
+		buttonPanel.add(update);
+				
+		return buttonPanel;
+	}
+	
+	private void fillTables() throws SQLException{
 		//Insert all data from database into GUI tables
 		this.insertMultipleRows(SystemGUI.ITEMS, this.itemSystem.getAllItems());
 		this.insertMultipleRows(SystemGUI.WEAPONS, this.itemSystem.getAllWeapons());
@@ -73,16 +90,131 @@ public class SystemGUI extends JFrame{
 		this.insertMultipleRows(SystemGUI.CONSUMABLES, this.itemSystem.getAllConsumables());
 		this.insertMultipleRows(SystemGUI.CHARACTERS, this.itemSystem.getAllCharacters());
 		this.insertMultipleRows(SystemGUI.INVENTORY, this.itemSystem.getInventories());
+	}
+	
+	private void createTabbedPane(){
+		this.tabPane = new JTabbedPane(JTabbedPane.TOP);
 		
-		//Add closeListener to perform the closing operations
-		this.addWindowListener(new CloseListener());
+		//Create each tab of the tabPane
+		String[] itemColumns = { "ItemId", "Price", "ImageURL" };
+		tabPane.addTab("Items", createTableTab(itemColumns));
+				
+		String[] weaponColumns = {"ItemId", "Attack", "SpecialAttack"};
+		tabPane.addTab("Weapons", createTableTab(weaponColumns));
+				
+		String[] armorColumns = {"ItemId", "Defense", "SpecialDefense"};
+		tabPane.addTab("Armor", createTableTab(armorColumns));
+				
+		String[] consumableColumns = {"ItemId", "Effected Stat", "Value"};
+		tabPane.addTab("Consumables", createTableTab(consumableColumns));
 		
-		JButton createCharacter = new JButton("Insert New");
-		createCharacter.setActionCommand("insert");
-		createCharacter.addActionListener(this.buttonListener);
-		this.add(createCharacter, BorderLayout.SOUTH);
-		this.setVisible(true);
+		String[] characterColumns = {"CharacterId", "Name", "Health", "Attack", "Defense", "SpecialAttack", "SpecialDefense"};
+		tabPane.addTab("Character", createTableTab(characterColumns));
+				
+		String[] inventoryColumns = {"CharacterId", "ItemId"};
+		tabPane.addTab("Inventory", createTableTab(inventoryColumns));
+	}
+	
+	public void updateSelectedRow(){
+		JScrollPane scrollPane = (JScrollPane)this.tabPane.getSelectedComponent();
+		JTable table = (JTable)scrollPane.getViewport().getView();
+		int row = table.getSelectedRow();
 		
+		if(this.checkRowValidity(row)){
+			DefaultTableModel model = (DefaultTableModel)table.getModel();
+			for(int i = 0; i < model.getColumnCount(); i++){
+				System.out.println(model.getValueAt(row, i));
+			}
+		}
+	}
+	
+	private boolean checkRowValidity(int row){
+		if(row >= 0){
+			return true;
+		}
+		else{
+			JOptionPane.showMessageDialog(this, "ERROR: no row is selected");
+			return false;
+		}
+	}
+	
+	private void removeFromTableWithId(int tableIndex, int id){
+		DefaultTableModel itemModel = (DefaultTableModel)tables.get(tableIndex).getModel();
+		for(int i = 0; i < itemModel.getRowCount(); i++){
+			if(Integer.parseInt((String)itemModel.getValueAt(i, 0)) == id){
+				itemModel.removeRow(i);
+				return;
+			}
+		}
+	}
+	
+	private void removeRowFromItems(int tableIndex, int id){
+		if(tableIndex == SystemGUI.WEAPONS || 
+				tableIndex == SystemGUI.CONSUMABLES || 
+				tableIndex == SystemGUI.ARMOR){
+			DefaultTableModel itemModel = (DefaultTableModel)tables.get(SystemGUI.ITEMS).getModel();
+			for(int i = 0; i < itemModel.getRowCount(); i++){
+				if(Integer.parseInt((String)itemModel.getValueAt(i, 0)) == id){
+					itemModel.removeRow(i);
+					return;
+				}
+			}
+		}
+	}
+	
+	private void deleteCharacterInventory(int characterId){
+		DefaultTableModel model = (DefaultTableModel)tables.get(SystemGUI.INVENTORY).getModel();
+		for(int i = 0; i < model.getRowCount(); i++){
+			if(Integer.parseInt((String)model.getValueAt(i, 0)) == characterId){
+				model.removeRow(i);
+				i = -1;
+			}
+		}
+	}
+	
+	//TODO REMOVE FROM DB
+	public void deleteSelectedRow() {
+		JTable table = tables.get(this.tabPane.getSelectedIndex());
+		int row = table.getSelectedRow();
+		row = table.convertRowIndexToModel(row);
+		DefaultTableModel model = (DefaultTableModel)table.getModel();
+		if(this.checkRowValidity(row)){
+			int index = this.tabPane.getSelectedIndex();
+			int id = Integer.parseInt((String)model.getValueAt(row, 0));
+			try{
+				switch(index){
+				case SystemGUI.CONSUMABLES:
+					this.itemSystem.deleteItem("CONSUMABLE", id);
+					break;
+				case SystemGUI.WEAPONS:
+					this.itemSystem.deleteItem("WEAPON", id);
+					break;
+				case SystemGUI.ARMOR:
+					this.itemSystem.deleteItem("ARMOR", id);
+					break;
+				case SystemGUI.ITEMS:
+					this.itemSystem.deleteItem("ITEM", id);
+					this.removeFromTableWithId(SystemGUI.WEAPONS, id);
+					this.removeFromTableWithId(SystemGUI.ARMOR, id);
+					this.removeFromTableWithId(SystemGUI.CONSUMABLES, id);
+					break;
+				case SystemGUI.INVENTORY:
+					int itemId = Integer.parseInt((String)model.getValueAt(row, 1));
+					this.itemSystem.removeFromInventory(itemId, id);
+					break;
+				case SystemGUI.CHARACTERS:
+					this.itemSystem.deleteCharacter(id);
+					this.deleteCharacterInventory(id);
+					break;
+				default:
+					break;
+				}
+				model.removeRow(row);
+				removeRowFromItems(index, id);
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	//inserts rows.size() number of rows into the table at tableIndex
@@ -94,17 +226,16 @@ public class SystemGUI extends JFrame{
 	
 	//Creates a table with the specified columnNames as the column headers
 	//Returns a JScrollPane with the table as its only component
-	private static JScrollPane createTableTab(String[] columnNames){
+	private JScrollPane createTableTab(String[] columnNames){
 		JTable table = new JTable(new DefaultTableModel(columnNames, 0));
+		this.tables.add(table);
 		return new JScrollPane(table);
 	}
 	
 	//Inserting new row into table at tableIndex
 	//ONLY USE THE STATIC CONSTANTS OF SYSTEMGUI FOR INDICES (ITEMS, WEAPONS, ARMOR, etc...)
 	public void insertRow(int tableIndex, String[] row){
-		JScrollPane pane = (JScrollPane)this.tabPane.getComponentAt(tableIndex);
-		JViewport view = pane.getViewport();
-		JTable table = (JTable)view.getView();
+		JTable table = tables.get(tableIndex);
 		DefaultTableModel model = (DefaultTableModel)(table.getModel());
 		model.addRow(row);
 	}
@@ -160,7 +291,7 @@ public class SystemGUI extends JFrame{
 					JOptionPane.OK_CANCEL_OPTION);
 			if(result == JOptionPane.OK_OPTION){
 				try {
-					int id = SystemGUI.this.itemSystem.getCharacterCount() + 1;
+					int id = SystemGUI.this.itemSystem.getNextId("CHARACTERS");
 					String[] row = {Integer.toString(id), name.getText(), health.getText(), attack.getText(),
 							defense.getText(), specialAttack.getText(), specialDefense.getText()};
 					this.parseCharacterDialog(row);
@@ -268,7 +399,7 @@ public class SystemGUI extends JFrame{
 			int result = JOptionPane.showConfirmDialog(null, panel, "Enter existing Ids to add to the character's inventory", JOptionPane.OK_CANCEL_OPTION);
 			if(result == JOptionPane.OK_OPTION){
 				try {
-					String[] row = {itemId.getText(), characterId.getText()};
+					String[] row = {characterId.getText(), itemId.getText()};
 					SystemGUI.this.itemSystem.insertIntoInventory(characterId.getText(), itemId.getText());
 					SystemGUI.this.insertRow(SystemGUI.INVENTORY, row);
 				} catch (SQLException e) {
@@ -299,7 +430,7 @@ public class SystemGUI extends JFrame{
 			int result = JOptionPane.showConfirmDialog(null, panel, "Enter the basic information for the item", JOptionPane.OK_CANCEL_OPTION);
 			if(result == JOptionPane.OK_OPTION){
 				try{
-					int id = SystemGUI.this.itemSystem.getItemCount() + 1;
+					int id = SystemGUI.this.itemSystem.getNextId("ITEM");
 					String[] row = {Integer.toString(id), price.getText(), image.getText()};
 					SystemGUI.this.itemSystem.insertNewItem(price.getText(), image.getText());
 					SystemGUI.this.insertRow(SystemGUI.ITEMS, row);
@@ -326,11 +457,12 @@ public class SystemGUI extends JFrame{
 		}
 		
 		private boolean parseCharacterDialog(String[] characterData) throws NumberFormatException{
-			for(int i = 1; i < characterData.length; i++){
+			for(int i = 2; i < characterData.length; i++){
 				Integer.parseInt(characterData[i]);
 			}
 			return true;
 		}
+
 		
 		
 		@Override
@@ -361,8 +493,14 @@ public class SystemGUI extends JFrame{
 					default:
 						break;
 					}
-					
 				}
+				break;
+			case "delete":
+				SystemGUI.this.deleteSelectedRow();
+				break;
+				
+			case "update":
+				SystemGUI.this.updateSelectedRow();
 				break;
 			default: 
 				break;
