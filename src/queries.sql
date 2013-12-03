@@ -178,3 +178,15 @@ INSERT INTO INVENTORY VALUES(
 	1,
 	7
 );
+
+--Example code copied from Java files
+UPDATE CHARACTERS SET name = '" + name + "', health = " + health + ", attack = " +
+					attack + ", defense = " + defense + ", specialAttack = " + specialAttack + ", specialDefense = " + 
+					specialDefense + " WHERE characterId = " + characterId;
+					
+"UPDATE ITEM SET price = " + price + ", imageURL = '" + imageURL + "' WHERE itemId = " + itemId;
+
+"DELETE FROM CHARACTERS WHERE characterId = " + characterId
+
+--This gets the last primary key that was used for the given table
+"SELECT * FROM SQLITE_SEQUENCE WHERE name = '" + tableName + "'"

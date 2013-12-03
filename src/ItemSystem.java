@@ -16,7 +16,35 @@ public class ItemSystem {
 		this();
 		this.connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath);
 	}
-		
+	
+	public void updateCharacter(String characterId, String name, String health, String attack, 
+			String defense, String specialAttack, String specialDefense) throws SQLException{
+		Statement statement = connection.createStatement();
+		statement.execute("UPDATE CHARACTERS SET name = '" + name + "', health = " + health + ", attack = " +
+					attack + ", defense = " + defense + ", specialAttack = " + specialAttack + ", specialDefense = " + 
+					specialDefense + " WHERE characterId = " + characterId);
+	}
+	
+	public void updateConsumable(String itemId, String effectedStat, String value) throws SQLException{
+		Statement statement = connection.createStatement();
+		statement.execute("UPDATE CONSUMABLE SET effectedStat = '" + effectedStat + "', value = " + value + " WHERE itemId = " + itemId);
+	}
+	
+	public void updateArmor(String itemId, String defense, String specialDefense) throws SQLException{
+		Statement statement = connection.createStatement();
+		statement.execute("UPDATE ARMOR SET defense = " + defense + ", specialDefense = " + specialDefense + " WHERE itemId = " + itemId);
+	}
+	
+	public void updateWeapon(String itemId, String attack, String specialAttack) throws SQLException{
+		Statement statement = connection.createStatement();
+		statement.execute("UPDATE WEAPON SET attack = " + attack + ", specialAttack = " + specialAttack + " WHERE itemId = " + itemId);
+	}
+	
+	public void updateItem(String itemId, String price, String imageURL) throws SQLException{
+		Statement statement = connection.createStatement();
+		statement.execute("UPDATE ITEM SET price = " + price + ", imageURL = '" + imageURL + "' WHERE itemId = " + itemId);
+	}
+	
 	public void deleteCharacter(int characterId) throws SQLException{
 		Statement statement = connection.createStatement();
 		statement.execute("DELETE FROM CHARACTERS WHERE characterId = " + characterId);

@@ -115,16 +115,62 @@ public class SystemGUI extends JFrame{
 		tabPane.addTab("Inventory", createTableTab(inventoryColumns));
 	}
 	
+	private void updateItemDialog(String[] data) throws SQLException{
+		JLabel priceL = new JLabel("Price: ");
+		JTextField price = new JTextField(data[1]);
+		JLabel imageL = new JLabel("ImageURL: ");
+		JTextField image = new JTextField(data[2]);
+		
+		JPanel panel = new JPanel(new GridLayout(3, 2));
+		panel.add(priceL);
+		panel.add(price);
+		panel.add(imageL);
+		panel.add(image);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Update Item Info", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			data[1] = price.getText();
+			data[2] = image.getText();
+			this.itemSystem.updateItem(data[0], data[1], data[2]);
+		}
+	}
+	
 	public void updateSelectedRow(){
-		JScrollPane scrollPane = (JScrollPane)this.tabPane.getSelectedComponent();
-		JTable table = (JTable)scrollPane.getViewport().getView();
+		JTable table = tables.get(this.tabPane.getSelectedIndex());
 		int row = table.getSelectedRow();
 		
 		if(this.checkRowValidity(row)){
 			DefaultTableModel model = (DefaultTableModel)table.getModel();
+			String[] values = new String[model.getColumnCount()];
 			for(int i = 0; i < model.getColumnCount(); i++){
-				System.out.println(model.getValueAt(row, i));
+				values[i] = (String) model.getValueAt(row, i);
 			}
+			
+			
+			try{
+				switch(this.tabPane.getSelectedIndex()){
+				case SystemGUI.ITEMS:
+					updateItemDialog(values);
+					break;
+				default:
+					break;
+				}
+			
+			
+				this.updateTable(model, row, values);
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
+		
+	}
+	
+	private void updateTable(DefaultTableModel model, int row, String[] values){
+		for(int i = 1; i < model.getColumnCount(); i++){
+			model.setValueAt(values[i], row, i);
 		}
 	}
 	
