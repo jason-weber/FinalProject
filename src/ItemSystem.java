@@ -17,30 +17,30 @@ public class ItemSystem {
 		this.connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath);
 	}
 	
-	public void updateCharacter(String characterId, String name, String health, String attack, 
-			String defense, String specialAttack, String specialDefense) throws SQLException{
+	public void updateCharacter(int characterId, String name, int health, int attack, 
+			int defense, int specialAttack, int specialDefense) throws SQLException{
 		Statement statement = connection.createStatement();
 		statement.execute("UPDATE CHARACTERS SET name = '" + name + "', health = " + health + ", attack = " +
 					attack + ", defense = " + defense + ", specialAttack = " + specialAttack + ", specialDefense = " + 
 					specialDefense + " WHERE characterId = " + characterId);
 	}
 	
-	public void updateConsumable(String itemId, String effectedStat, String value) throws SQLException{
+	public void updateConsumable(int itemId, String effectedStat, int value) throws SQLException{
 		Statement statement = connection.createStatement();
-		statement.execute("UPDATE CONSUMABLE SET effectedStat = '" + effectedStat + "', value = " + value + " WHERE itemId = " + itemId);
+		statement.execute("UPDATE CONSUMABLE SET effectedStat = '" + effectedStat + "', amount = " + value + " WHERE itemId = " + itemId);
 	}
 	
-	public void updateArmor(String itemId, String defense, String specialDefense) throws SQLException{
+	public void updateArmor(int itemId, int defense, int specialDefense) throws SQLException{
 		Statement statement = connection.createStatement();
 		statement.execute("UPDATE ARMOR SET defense = " + defense + ", specialDefense = " + specialDefense + " WHERE itemId = " + itemId);
 	}
 	
-	public void updateWeapon(String itemId, String attack, String specialAttack) throws SQLException{
+	public void updateWeapon(int itemId, int attack, int specialAttack) throws SQLException{
 		Statement statement = connection.createStatement();
 		statement.execute("UPDATE WEAPON SET attack = " + attack + ", specialAttack = " + specialAttack + " WHERE itemId = " + itemId);
 	}
 	
-	public void updateItem(String itemId, String price, String imageURL) throws SQLException{
+	public void updateItem(int itemId, int price, String imageURL) throws SQLException{
 		Statement statement = connection.createStatement();
 		statement.execute("UPDATE ITEM SET price = " + price + ", imageURL = '" + imageURL + "' WHERE itemId = " + itemId);
 	}
@@ -80,42 +80,42 @@ public class ItemSystem {
 	}
 	
 	//Inserts a new Character Tuple into the Character table
-	public void insertCharacter( String name, String health, String attack, 
-			String defense, String specialAttack, String specialDefense) throws SQLException{
+	public void insertCharacter( String name, int health, int attack, 
+			int defense, int specialAttack, int specialDefense) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO CHARACTERS VALUES(NULL, '" + name + "', " + health + ", " +
 				attack + ", " + defense + ", " + specialAttack + ", " + specialDefense + ")");
 	}
 	
 	//Inserts an item into a character's inventory
-	public void insertIntoInventory(String characterId, String itemId) throws SQLException{
+	public void insertIntoInventory(int characterId, int itemId) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO INVENTORY VALUES(" + characterId + ", " + itemId + ")");
 	}
 	
 	//Insert a new Armor item into the Item and Armor tables
-	public void insertArmor(int itemId, String defense, String specialDefense) throws SQLException{
+	public void insertArmor(int itemId, int defense, int specialDefense) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO ARMOR VALUES(" + 
 				itemId + ", " + defense + ", " + specialDefense + ")");
 	}
 	
 	//Inserts a new Weapon into the Item and Weapon tables
-	public void insertWeapon(int itemId, String attack, String specialAttack) throws SQLException{
+	public void insertWeapon(int itemId, int attack, int specialAttack) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO WEAPON VALUES(" + 
 				itemId + ", " + attack + ", " + specialAttack + ")");
 	}
 	
 	//Inserts a new Consumable into the Item and Consumable tables
-	public void insertConsumable(int itemId, String effectedStat, String value) throws SQLException{
+	public void insertConsumable(int itemId, String effectedStat, int value) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO CONSUMABLE VALUES(" + 
 				itemId + ", '" + effectedStat + "', " + value + ")");
 	}
 	
 	//Inserts a new generic Item into the Item table
-	public void insertNewItem(String price, String imageURL) throws SQLException{
+	public void insertNewItem(int price, String imageURL) throws SQLException{
 		Statement statement = this.connection.createStatement();
 		statement.execute("INSERT INTO ITEM VALUES(NULL, " + price + ", '" + imageURL + "')");
 	}

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+@SuppressWarnings("serial")
 public class SystemGUI extends JFrame{
 	//Constants to access table tabs
 	public static final int ITEMS = 0;
@@ -115,7 +116,7 @@ public class SystemGUI extends JFrame{
 		tabPane.addTab("Inventory", createTableTab(inventoryColumns));
 	}
 	
-	private void updateItemDialog(String[] data) throws SQLException{
+	private void updateItemDialog(String[] data) throws SQLException, NumberFormatException{
 		JLabel priceL = new JLabel("Price: ");
 		JTextField price = new JTextField(data[1]);
 		JLabel imageL = new JLabel("ImageURL: ");
@@ -131,8 +132,109 @@ public class SystemGUI extends JFrame{
 		if(result == JOptionPane.OK_OPTION){
 			data[1] = price.getText();
 			data[2] = image.getText();
-			this.itemSystem.updateItem(data[0], data[1], data[2]);
+			this.itemSystem.updateItem(this.parseToInt(data[0]), this.parseToInt(data[1]), data[2]);
 		}
+	}
+	
+	private void updateWeaponDialog(String[] data) throws SQLException, NumberFormatException{
+		JLabel attackL = new JLabel("Attack: ");
+		JTextField attack = new JTextField(data[1]);
+		JLabel specialAttackL = new JLabel("Special Attack: ");
+		JTextField specialAttack = new JTextField(data[2]);
+		
+		JPanel panel = new JPanel(new GridLayout(3, 2));
+		panel.add(attackL);
+		panel.add(attack);
+		panel.add(specialAttackL);
+		panel.add(specialAttack);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Update Weapon Info", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			data[1] = attack.getText();
+			data[2] = specialAttack.getText();
+			this.itemSystem.updateWeapon(this.parseToInt(data[0]), this.parseToInt(data[1]), this.parseToInt(data[2]));
+		}		
+	}
+	
+	private void updateArmorDialog(String[] data) throws SQLException, NumberFormatException{
+		JLabel defenseL = new JLabel("Defense: ");
+		JTextField defense = new JTextField(data[1]);
+		JLabel specialDefenseL = new JLabel("Special Defense: ");
+		JTextField specialDefense = new JTextField(data[2]);
+		
+		JPanel panel = new JPanel(new GridLayout(3, 2));
+		panel.add(defenseL);
+		panel.add(defense);
+		panel.add(specialDefenseL);
+		panel.add(specialDefense);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Update Armor Info", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			data[1] = defense.getText();
+			data[2] = specialDefense.getText();
+			this.itemSystem.updateArmor(this.parseToInt(data[0]), this.parseToInt(data[1]), this.parseToInt(data[2]));
+		}	
+	}
+
+	private void updateConsumableDialog(String[] data) throws SQLException{
+		JLabel effectedStatL = new JLabel("Effected Stat: ");
+		JTextField effectedStat = new JTextField(data[1]);
+		JLabel valueL = new JLabel("Value: ");
+		JTextField value = new JTextField(data[2]);
+		
+		JPanel panel = new JPanel(new GridLayout(3, 2));
+		panel.add(effectedStatL);
+		panel.add(effectedStat);
+		panel.add(valueL);
+		panel.add(value);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Update Armor Info", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			data[1] = effectedStat.getText();
+			data[2] = value.getText();
+			this.itemSystem.updateConsumable(this.parseToInt(data[0]), data[1], this.parseToInt(data[2]));
+		}	
+	}
+
+	private void updateCharacterDialog(String[] data) throws SQLException{
+		JLabel nameL = new JLabel("Name: ");
+		JTextField name = new JTextField(data[1]);
+		JLabel healthL = new JLabel("Health: ");
+		JTextField health = new JTextField(data[2]);
+		JLabel attackL = new JLabel("Attack: ");
+		JTextField attack = new JTextField(data[3]);
+		JLabel specialAttackL = new JLabel("Special Attack: ");
+		JTextField specialAttack = new JTextField(data[4]);
+		JLabel defenseL = new JLabel("Defense: ");
+		JTextField defense = new JTextField(data[5]);
+		JLabel specialDefenseL = new JLabel("Special Defense: ");
+		JTextField specialDefense = new JTextField(data[6]);
+		
+		JPanel panel = new JPanel(new GridLayout(6, 2));
+		panel.add(nameL);
+		panel.add(name);
+		panel.add(healthL);
+		panel.add(health);
+		panel.add(attackL);
+		panel.add(attack);
+		panel.add(specialAttackL);
+		panel.add(specialAttack);
+		panel.add(defenseL);
+		panel.add(defense);
+		panel.add(specialDefenseL);
+		panel.add(specialDefense);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Update Armor Info", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			data[1] = name.getText();
+			data[2] = health.getText();
+			data[3] = attack.getText();
+			data[4] = specialAttack.getText();
+			data[5] = defense.getText();
+			data[6] = specialDefense.getText();
+			this.itemSystem.updateCharacter(this.parseToInt(data[0]), data[1], this.parseToInt(data[2]), this.parseToInt(data[3]),
+					this.parseToInt(data[4]), this.parseToInt(data[5]), this.parseToInt(data[6]));
+		}	
 	}
 	
 	public void updateSelectedRow(){
@@ -152,20 +254,38 @@ public class SystemGUI extends JFrame{
 				case SystemGUI.ITEMS:
 					updateItemDialog(values);
 					break;
+				case SystemGUI.WEAPONS:
+					updateWeaponDialog(values);
+					break;
+				case SystemGUI.ARMOR:
+					updateArmorDialog(values);
+					break;
+				case SystemGUI.CONSUMABLES:
+					updateConsumableDialog(values);
+					break;
+				case SystemGUI.CHARACTERS:
+					updateCharacterDialog(values);
+					break;
 				default:
 					break;
 				}
 			
 			
 				this.updateTable(model, row, values);
-			}catch(SQLException e){
-				e.printStackTrace();
+			} catch(SQLException e){
+				JOptionPane.showMessageDialog(null, "Error updating selected row. Try Again.", "Error", JOptionPane.ERROR_MESSAGE);
+			} catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 		
 		
 		
 		
+	}
+	
+	private int parseToInt(String str) throws NumberFormatException{
+		return Integer.parseInt(str);
 	}
 	
 	private void updateTable(DefaultTableModel model, int row, String[] values){
@@ -258,7 +378,7 @@ public class SystemGUI extends JFrame{
 				model.removeRow(row);
 				removeRowFromItems(index, id);
 			}catch(SQLException e){
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error Deleting row. Try Again.", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -289,15 +409,12 @@ public class SystemGUI extends JFrame{
 	//Just create a SystemGUI
 	public static void main(String[] args){
 		try {
+			@SuppressWarnings("unused")
 			SystemGUI gui = new SystemGUI("res/projectDatabase.db");
 			
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error starting up. Please try again.", "ERROR", JOptionPane.ERROR_MESSAGE);
+		} 
 	}
 	
 	//ADD ERROR CODE
@@ -340,19 +457,18 @@ public class SystemGUI extends JFrame{
 					int id = SystemGUI.this.itemSystem.getNextId("CHARACTERS");
 					String[] row = {Integer.toString(id), name.getText(), health.getText(), attack.getText(),
 							defense.getText(), specialAttack.getText(), specialDefense.getText()};
-					this.parseCharacterDialog(row);
-					
+
 					SystemGUI.this.itemSystem.insertCharacter(name.getText(),
-							health.getText(), attack.getText(), defense.getText(),
-							specialAttack.getText(), specialDefense.getText());
+							SystemGUI.this.parseToInt(health.getText()), SystemGUI.this.parseToInt(attack.getText()), 
+							SystemGUI.this.parseToInt(defense.getText()), SystemGUI.this.parseToInt(specialAttack.getText()), 
+							SystemGUI.this.parseToInt(specialDefense.getText()));
 					
 					SystemGUI.this.insertRow(SystemGUI.CHARACTERS, row);
 				
 				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error inserting character into database.", "Error", JOptionPane.ERROR_MESSAGE);
 				} catch(NumberFormatException e){
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error 1 of your inputs is not a number when it should be.", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
@@ -373,10 +489,13 @@ public class SystemGUI extends JFrame{
 			if(result == JOptionPane.OK_OPTION){
 				try{
 					String[] row = {Integer.toString(id), attack.getText(), specialAttack.getText() };
-					SystemGUI.this.itemSystem.insertWeapon(id, attack.getText(), specialAttack.getText());
+					SystemGUI.this.itemSystem.insertWeapon(id, SystemGUI.this.parseToInt(attack.getText()), SystemGUI.this.parseToInt(specialAttack.getText()));
 					SystemGUI.this.insertRow(SystemGUI.WEAPONS, row);
 				} catch(SQLException e){
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error creating weapon.", "ERROR", JOptionPane.ERROR_MESSAGE);
+
+				} catch(NumberFormatException e){
+					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
@@ -397,10 +516,12 @@ public class SystemGUI extends JFrame{
 			if(result == JOptionPane.OK_OPTION){
 				try{
 					String[] row = {Integer.toString(id), defense.getText(), specialDefense.getText() };
-					SystemGUI.this.itemSystem.insertArmor(id, defense.getText(), specialDefense.getText());
+					SystemGUI.this.itemSystem.insertArmor(id, SystemGUI.this.parseToInt(defense.getText()), SystemGUI.this.parseToInt(specialDefense.getText()));
 					SystemGUI.this.insertRow(SystemGUI.ARMOR, row);
 				} catch(SQLException e){
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error inserting armor into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				}  catch(NumberFormatException e){
+					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
@@ -422,10 +543,12 @@ public class SystemGUI extends JFrame{
 			if(result == JOptionPane.OK_OPTION){
 				try{
 					String[] row = {Integer.toString(id), (String)effectedStat.getSelectedItem(), value.getText() };
-					SystemGUI.this.itemSystem.insertConsumable(id, (String)effectedStat.getSelectedItem(), value.getText());
+					SystemGUI.this.itemSystem.insertConsumable(id, (String)effectedStat.getSelectedItem(), SystemGUI.this.parseToInt(value.getText()));
 					SystemGUI.this.insertRow(SystemGUI.CONSUMABLES, row);
 				} catch(SQLException e){
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error inserting consumable into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				} catch(NumberFormatException e){
+					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
@@ -446,11 +569,12 @@ public class SystemGUI extends JFrame{
 			if(result == JOptionPane.OK_OPTION){
 				try {
 					String[] row = {characterId.getText(), itemId.getText()};
-					SystemGUI.this.itemSystem.insertIntoInventory(characterId.getText(), itemId.getText());
+					SystemGUI.this.itemSystem.insertIntoInventory(SystemGUI.this.parseToInt(characterId.getText()), SystemGUI.this.parseToInt(itemId.getText()));
 					SystemGUI.this.insertRow(SystemGUI.INVENTORY, row);
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error inserting inventory item into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				} catch(NumberFormatException e){
+					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}
@@ -478,7 +602,7 @@ public class SystemGUI extends JFrame{
 				try{
 					int id = SystemGUI.this.itemSystem.getNextId("ITEM");
 					String[] row = {Integer.toString(id), price.getText(), image.getText()};
-					SystemGUI.this.itemSystem.insertNewItem(price.getText(), image.getText());
+					SystemGUI.this.itemSystem.insertNewItem(SystemGUI.this.parseToInt(price.getText()), image.getText());
 					SystemGUI.this.insertRow(SystemGUI.ITEMS, row);
 					
 					switch((String)dropDown.getSelectedItem()){
@@ -496,17 +620,12 @@ public class SystemGUI extends JFrame{
 					}
 					
 					
-				}catch (SQLException e){
-					e.printStackTrace();
+				} catch (SQLException e){
+					JOptionPane.showMessageDialog(null, "Error inserting item into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+				} catch(NumberFormatException e){
+					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
 				}
 			}
-		}
-		
-		private boolean parseCharacterDialog(String[] characterData) throws NumberFormatException{
-			for(int i = 2; i < characterData.length; i++){
-				Integer.parseInt(characterData[i]);
-			}
-			return true;
 		}
 
 		
@@ -563,14 +682,12 @@ public class SystemGUI extends JFrame{
 		
 		@Override
 		public void windowActivated(WindowEvent arg0) {
-			// TODO Auto-generated method stub
-			
+		
 		}
 
 		@Override
 		public void windowClosed(WindowEvent arg0) {
-			
-			
+					
 		}
 
 		@Override
@@ -579,8 +696,7 @@ public class SystemGUI extends JFrame{
 				SystemGUI.this.itemSystem.close();
 				
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Error closing SQLite connection.", "ERROR", JOptionPane.ERROR_MESSAGE);
 			} finally{
 				SystemGUI.this.dispose();
 				System.exit(0);
@@ -590,25 +706,23 @@ public class SystemGUI extends JFrame{
 
 		@Override
 		public void windowDeactivated(WindowEvent arg0) {
-			// TODO Auto-generated method stub
-			
+						
 		}
 
 		@Override
 		public void windowDeiconified(WindowEvent arg0) {
-			// TODO Auto-generated method stub
-			
+						
 		}
 
 		@Override
 		public void windowIconified(WindowEvent arg0) {
-			// TODO Auto-generated method stub
+			
 			
 		}
 
 		@Override
 		public void windowOpened(WindowEvent arg0) {
-			// TODO Auto-generated method stub	
+				
 		}
 	}
 }
