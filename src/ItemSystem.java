@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import org.sqlite.SQLiteConfig;
+
 public class ItemSystem {
 	private Connection connection;
 	
@@ -16,6 +18,8 @@ public class ItemSystem {
 		this();
 		this.connection = DriverManager.getConnection("jdbc:sqlite:" + databaseFilePath);
 	}
+	
+
 	
 	public void updateCharacter(int characterId, String name, int health, int attack, 
 			int defense, int specialAttack, int specialDefense) throws SQLException{

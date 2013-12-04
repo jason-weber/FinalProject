@@ -62,6 +62,8 @@ public class SystemGUI extends JFrame{
 		
 	}
 	
+
+	
 	private JPanel createButtonPanel(){
 		JPanel buttonPanel = new JPanel();
 		
@@ -79,7 +81,8 @@ public class SystemGUI extends JFrame{
 		update.setActionCommand("update");
 		update.addActionListener(this.buttonListener);
 		buttonPanel.add(update);
-				
+
+		
 		return buttonPanel;
 	}
 	
@@ -106,7 +109,7 @@ public class SystemGUI extends JFrame{
 		String[] armorColumns = {"ItemId", "Defense", "SpecialDefense"};
 		tabPane.addTab("Armor", createTableTab(armorColumns));
 				
-		String[] consumableColumns = {"ItemId", "Effected Stat", "Value"};
+		String[] consumableColumns = {"ItemId", "Effected Stat", "Amount"};
 		tabPane.addTab("Consumables", createTableTab(consumableColumns));
 		
 		String[] characterColumns = {"CharacterId", "Name", "Health", "Attack", "Defense", "SpecialAttack", "SpecialDefense"};
@@ -406,6 +409,215 @@ public class SystemGUI extends JFrame{
 		model.addRow(row);
 	}
 	
+	private void createCharacterDialog(){
+		JLabel nameL = new JLabel("Name: ");
+		JLabel healthL = new JLabel("Health: ");
+		JLabel attackL = new JLabel("Attack: ");
+		JLabel defenseL = new JLabel("Defense: ");
+		JLabel specialAttackL = new JLabel("Special Attack: ");
+		JLabel specialDefenseL = new JLabel("Special Defense: ");
+		
+		JTextField name = new JTextField(10);
+		JTextField health = new JTextField(10);
+		JTextField attack = new JTextField(10);
+		JTextField defense = new JTextField(10);
+		JTextField specialAttack = new JTextField(10);
+		JTextField specialDefense = new JTextField(10);
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(6, 2));
+		panel.add(nameL);
+		panel.add(name);
+		panel.add(healthL);
+		panel.add(health);
+		panel.add(attackL);
+		panel.add(attack);
+		panel.add(defenseL);
+		panel.add(defense);
+		panel.add(specialAttackL);
+		panel.add(specialAttack);
+		panel.add(specialDefenseL);
+		panel.add(specialDefense);
+		
+		int result = JOptionPane.showConfirmDialog(null,
+				panel, "Please enter all information for the character", 
+				JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			try {
+				int id = this.itemSystem.getNextId("CHARACTERS");
+				String[] row = {Integer.toString(id), name.getText(), health.getText(), attack.getText(),
+						defense.getText(), specialAttack.getText(), specialDefense.getText()};
+
+				this.itemSystem.insertCharacter(name.getText(),
+						this.parseToInt(health.getText()), this.parseToInt(attack.getText()), 
+						this.parseToInt(defense.getText()), this.parseToInt(specialAttack.getText()), 
+						this.parseToInt(specialDefense.getText()));
+				
+				this.insertRow(SystemGUI.CHARACTERS, row);
+			
+			} catch (SQLException e1) {
+				JOptionPane.showMessageDialog(null, "Error inserting character into database.", "Error", JOptionPane.ERROR_MESSAGE);
+			} catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "Error 1 of your inputs is not a number when it should be.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	private void createWeaponDialog(int id){
+		JLabel attackL = new JLabel("Attack: ");
+		JTextField attack = new JTextField();
+		JLabel specialAttackL = new JLabel("Special Attack: ");
+		JTextField specialAttack = new JTextField();
+		
+		JPanel panel = new JPanel(new GridLayout(2, 2));
+		panel.add(attackL);
+		panel.add(attack);
+		panel.add(specialAttackL);
+		panel.add(specialAttack);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Enter Weapon information", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			try{
+				String[] row = {Integer.toString(id), attack.getText(), specialAttack.getText() };
+				this.itemSystem.insertWeapon(id, this.parseToInt(attack.getText()), this.parseToInt(specialAttack.getText()));
+				this.insertRow(SystemGUI.WEAPONS, row);
+			} catch(SQLException e){
+				JOptionPane.showMessageDialog(null, "Error creating weapon.", "ERROR", JOptionPane.ERROR_MESSAGE);
+
+			} catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	private void createArmorDialog(int id){
+		JLabel defenseL = new JLabel("Defense: ");
+		JTextField defense = new JTextField();
+		JLabel specialDefenseL = new JLabel("Special Defense: ");
+		JTextField specialDefense = new JTextField();
+		
+		JPanel panel = new JPanel(new GridLayout(2, 2));
+		panel.add(defenseL);
+		panel.add(defense);
+		panel.add(specialDefenseL);
+		panel.add(specialDefense);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Enter Armor information", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			try{
+				String[] row = {Integer.toString(id), defense.getText(), specialDefense.getText() };
+				this.itemSystem.insertArmor(id, this.parseToInt(defense.getText()), this.parseToInt(specialDefense.getText()));
+				this.insertRow(SystemGUI.ARMOR, row);
+			} catch(SQLException e){
+				JOptionPane.showMessageDialog(null, "Error inserting armor into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}  catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	private void createConsumableDialog(int id){
+		JLabel effectedStatL = new JLabel("Effected Stat: ");
+		String[] stats = {"Health", "Attack", "Special Attack", "Defense", "Special Defense" };
+		JComboBox<String> effectedStat = new JComboBox<String>(stats);
+		JLabel valueL = new JLabel("Value: ");
+		JTextField value = new JTextField();
+		
+		JPanel panel = new JPanel(new GridLayout(2, 2));
+		panel.add(effectedStatL);
+		panel.add(effectedStat);
+		panel.add(valueL);
+		panel.add(value);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Enter Consumable information", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			try{
+				String[] row = {Integer.toString(id), (String)effectedStat.getSelectedItem(), value.getText() };
+				this.itemSystem.insertConsumable(id, (String)effectedStat.getSelectedItem(), this.parseToInt(value.getText()));
+				this.insertRow(SystemGUI.CONSUMABLES, row);
+			} catch(SQLException e){
+				JOptionPane.showMessageDialog(null, "Error inserting consumable into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			} catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	private void addToInventoryDialog(){
+		JLabel itemIdL = new JLabel("Item Id: ");
+		JTextField itemId = new JTextField();
+		JLabel characterIdL = new JLabel("Character Id: ");
+		JTextField characterId = new JTextField();
+		
+		JPanel panel = new JPanel(new GridLayout(2, 2));
+		panel.add(itemIdL);
+		panel.add(itemId);
+		panel.add(characterIdL);
+		panel.add(characterId);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Enter existing Ids to add to the character's inventory", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			try {
+				String[] row = {characterId.getText(), itemId.getText()};
+				this.itemSystem.insertIntoInventory(this.parseToInt(characterId.getText()), this.parseToInt(itemId.getText()));
+				this.insertRow(SystemGUI.INVENTORY, row);
+			} catch (SQLException e) {
+				JOptionPane.showMessageDialog(null, "Error inserting inventory item into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			} catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
+	private void createItemDialog(String defaultCheckboxVal){
+		JLabel choicesL = new JLabel("Choose an item type: ");
+		String[] choices = {"Basic Item", "Weapon", "Armor", "Consumable"};
+		JComboBox<String> dropDown = new JComboBox<String>(choices);
+		dropDown.setSelectedItem(defaultCheckboxVal);
+		JLabel priceL = new JLabel("Price: ");
+		JLabel imageL = new JLabel("Image URL: ");
+		JTextField price = new JTextField();
+		JTextField image = new JTextField();
+		
+		JPanel panel = new JPanel(new GridLayout(3, 2));
+		panel.add(choicesL);
+		panel.add(dropDown);
+		panel.add(priceL);
+		panel.add(price);
+		panel.add(imageL);
+		panel.add(image);
+		
+		int result = JOptionPane.showConfirmDialog(null, panel, "Enter the basic information for the item", JOptionPane.OK_CANCEL_OPTION);
+		if(result == JOptionPane.OK_OPTION){
+			try{
+				int id = this.itemSystem.getNextId("ITEM");
+				String[] row = {Integer.toString(id), price.getText(), image.getText()};
+				this.itemSystem.insertNewItem(this.parseToInt(price.getText()), image.getText());
+				this.insertRow(SystemGUI.ITEMS, row);
+				
+				switch((String)dropDown.getSelectedItem()){
+				case "Weapon":
+					this.createWeaponDialog(id);
+					break;
+				case "Armor":
+					this.createArmorDialog(id);
+					break;
+				case "Consumable":
+					this.createConsumableDialog(id);
+					break;
+				default:
+					break;
+				}
+				
+				
+			} catch (SQLException e){
+				JOptionPane.showMessageDialog(null, "Error inserting item into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			} catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	
 	//Just create a SystemGUI
 	public static void main(String[] args){
 		try {
@@ -419,214 +631,7 @@ public class SystemGUI extends JFrame{
 	
 	//ADD ERROR CODE
 	private class ButtonListener implements ActionListener{
-		private void createCharacterDialog(){
-			JLabel nameL = new JLabel("Name: ");
-			JLabel healthL = new JLabel("Health: ");
-			JLabel attackL = new JLabel("Attack: ");
-			JLabel defenseL = new JLabel("Defense: ");
-			JLabel specialAttackL = new JLabel("Special Attack: ");
-			JLabel specialDefenseL = new JLabel("Special Defense: ");
-			
-			JTextField name = new JTextField(10);
-			JTextField health = new JTextField(10);
-			JTextField attack = new JTextField(10);
-			JTextField defense = new JTextField(10);
-			JTextField specialAttack = new JTextField(10);
-			JTextField specialDefense = new JTextField(10);
-			
-			JPanel panel = new JPanel();
-			panel.setLayout(new GridLayout(6, 2));
-			panel.add(nameL);
-			panel.add(name);
-			panel.add(healthL);
-			panel.add(health);
-			panel.add(attackL);
-			panel.add(attack);
-			panel.add(defenseL);
-			panel.add(defense);
-			panel.add(specialAttackL);
-			panel.add(specialAttack);
-			panel.add(specialDefenseL);
-			panel.add(specialDefense);
-			
-			int result = JOptionPane.showConfirmDialog(null,
-					panel, "Please enter all information for the character", 
-					JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.OK_OPTION){
-				try {
-					int id = SystemGUI.this.itemSystem.getNextId("CHARACTERS");
-					String[] row = {Integer.toString(id), name.getText(), health.getText(), attack.getText(),
-							defense.getText(), specialAttack.getText(), specialDefense.getText()};
-
-					SystemGUI.this.itemSystem.insertCharacter(name.getText(),
-							SystemGUI.this.parseToInt(health.getText()), SystemGUI.this.parseToInt(attack.getText()), 
-							SystemGUI.this.parseToInt(defense.getText()), SystemGUI.this.parseToInt(specialAttack.getText()), 
-							SystemGUI.this.parseToInt(specialDefense.getText()));
-					
-					SystemGUI.this.insertRow(SystemGUI.CHARACTERS, row);
-				
-				} catch (SQLException e1) {
-					JOptionPane.showMessageDialog(null, "Error inserting character into database.", "Error", JOptionPane.ERROR_MESSAGE);
-				} catch(NumberFormatException e){
-					JOptionPane.showMessageDialog(null, "Error 1 of your inputs is not a number when it should be.", "Error", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
 		
-		private void createWeaponDialog(int id){
-			JLabel attackL = new JLabel("Attack: ");
-			JTextField attack = new JTextField();
-			JLabel specialAttackL = new JLabel("Special Attack: ");
-			JTextField specialAttack = new JTextField();
-			
-			JPanel panel = new JPanel(new GridLayout(2, 2));
-			panel.add(attackL);
-			panel.add(attack);
-			panel.add(specialAttackL);
-			panel.add(specialAttack);
-			
-			int result = JOptionPane.showConfirmDialog(null, panel, "Enter Weapon information", JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.OK_OPTION){
-				try{
-					String[] row = {Integer.toString(id), attack.getText(), specialAttack.getText() };
-					SystemGUI.this.itemSystem.insertWeapon(id, SystemGUI.this.parseToInt(attack.getText()), SystemGUI.this.parseToInt(specialAttack.getText()));
-					SystemGUI.this.insertRow(SystemGUI.WEAPONS, row);
-				} catch(SQLException e){
-					JOptionPane.showMessageDialog(null, "Error creating weapon.", "ERROR", JOptionPane.ERROR_MESSAGE);
-
-				} catch(NumberFormatException e){
-					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-		
-		private void createArmorDialog(int id){
-			JLabel defenseL = new JLabel("Defense: ");
-			JTextField defense = new JTextField();
-			JLabel specialDefenseL = new JLabel("Special Defense: ");
-			JTextField specialDefense = new JTextField();
-			
-			JPanel panel = new JPanel(new GridLayout(2, 2));
-			panel.add(defenseL);
-			panel.add(defense);
-			panel.add(specialDefenseL);
-			panel.add(specialDefense);
-			
-			int result = JOptionPane.showConfirmDialog(null, panel, "Enter Armor information", JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.OK_OPTION){
-				try{
-					String[] row = {Integer.toString(id), defense.getText(), specialDefense.getText() };
-					SystemGUI.this.itemSystem.insertArmor(id, SystemGUI.this.parseToInt(defense.getText()), SystemGUI.this.parseToInt(specialDefense.getText()));
-					SystemGUI.this.insertRow(SystemGUI.ARMOR, row);
-				} catch(SQLException e){
-					JOptionPane.showMessageDialog(null, "Error inserting armor into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				}  catch(NumberFormatException e){
-					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-		
-		private void createConsumableDialog(int id){
-			JLabel effectedStatL = new JLabel("Effected Stat: ");
-			String[] stats = {"Health", "Attack", "Special Attack", "Defense", "Special Defense" };
-			JComboBox<String> effectedStat = new JComboBox<String>(stats);
-			JLabel valueL = new JLabel("Value: ");
-			JTextField value = new JTextField();
-			
-			JPanel panel = new JPanel(new GridLayout(2, 2));
-			panel.add(effectedStatL);
-			panel.add(effectedStat);
-			panel.add(valueL);
-			panel.add(value);
-			
-			int result = JOptionPane.showConfirmDialog(null, panel, "Enter Consumable information", JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.OK_OPTION){
-				try{
-					String[] row = {Integer.toString(id), (String)effectedStat.getSelectedItem(), value.getText() };
-					SystemGUI.this.itemSystem.insertConsumable(id, (String)effectedStat.getSelectedItem(), SystemGUI.this.parseToInt(value.getText()));
-					SystemGUI.this.insertRow(SystemGUI.CONSUMABLES, row);
-				} catch(SQLException e){
-					JOptionPane.showMessageDialog(null, "Error inserting consumable into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				} catch(NumberFormatException e){
-					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-		
-		private void addToInventoryDialog(){
-			JLabel itemIdL = new JLabel("Item Id: ");
-			JTextField itemId = new JTextField();
-			JLabel characterIdL = new JLabel("Character Id: ");
-			JTextField characterId = new JTextField();
-			
-			JPanel panel = new JPanel(new GridLayout(2, 2));
-			panel.add(itemIdL);
-			panel.add(itemId);
-			panel.add(characterIdL);
-			panel.add(characterId);
-			
-			int result = JOptionPane.showConfirmDialog(null, panel, "Enter existing Ids to add to the character's inventory", JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.OK_OPTION){
-				try {
-					String[] row = {characterId.getText(), itemId.getText()};
-					SystemGUI.this.itemSystem.insertIntoInventory(SystemGUI.this.parseToInt(characterId.getText()), SystemGUI.this.parseToInt(itemId.getText()));
-					SystemGUI.this.insertRow(SystemGUI.INVENTORY, row);
-				} catch (SQLException e) {
-					JOptionPane.showMessageDialog(null, "Error inserting inventory item into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				} catch(NumberFormatException e){
-					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-		
-		private void createItemDialog(String defaultCheckboxVal){
-			JLabel choicesL = new JLabel("Choose an item type: ");
-			String[] choices = {"Basic Item", "Weapon", "Armor", "Consumable"};
-			JComboBox<String> dropDown = new JComboBox<String>(choices);
-			dropDown.setSelectedItem(defaultCheckboxVal);
-			JLabel priceL = new JLabel("Price: ");
-			JLabel imageL = new JLabel("Image URL: ");
-			JTextField price = new JTextField();
-			JTextField image = new JTextField();
-			
-			JPanel panel = new JPanel(new GridLayout(3, 2));
-			panel.add(choicesL);
-			panel.add(dropDown);
-			panel.add(priceL);
-			panel.add(price);
-			panel.add(imageL);
-			panel.add(image);
-			
-			int result = JOptionPane.showConfirmDialog(null, panel, "Enter the basic information for the item", JOptionPane.OK_CANCEL_OPTION);
-			if(result == JOptionPane.OK_OPTION){
-				try{
-					int id = SystemGUI.this.itemSystem.getNextId("ITEM");
-					String[] row = {Integer.toString(id), price.getText(), image.getText()};
-					SystemGUI.this.itemSystem.insertNewItem(SystemGUI.this.parseToInt(price.getText()), image.getText());
-					SystemGUI.this.insertRow(SystemGUI.ITEMS, row);
-					
-					switch((String)dropDown.getSelectedItem()){
-					case "Weapon":
-						this.createWeaponDialog(id);
-						break;
-					case "Armor":
-						this.createArmorDialog(id);
-						break;
-					case "Consumable":
-						this.createConsumableDialog(id);
-						break;
-					default:
-						break;
-					}
-					
-					
-				} catch (SQLException e){
-					JOptionPane.showMessageDialog(null, "Error inserting item into database.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				} catch(NumberFormatException e){
-					JOptionPane.showMessageDialog(null, "Error some value was not an integer when it should be.", "ERROR", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
 
 		
 		
@@ -638,22 +643,22 @@ public class SystemGUI extends JFrame{
 				if(currentTab >= 0){
 					switch(currentTab){
 					case SystemGUI.WEAPONS:
-						this.createItemDialog("Weapon");
+						SystemGUI.this.createItemDialog("Weapon");
 						break;
 					case SystemGUI.ARMOR:
-						this.createItemDialog("Armor");
+						SystemGUI.this.createItemDialog("Armor");
 						break;
 					case SystemGUI.CONSUMABLES:
-						this.createItemDialog("Consumable");
+						SystemGUI.this.createItemDialog("Consumable");
 						break;
 					case SystemGUI.ITEMS:
-						this.createItemDialog("Basic Item");
+						SystemGUI.this.createItemDialog("Basic Item");
 						break;
 					case SystemGUI.CHARACTERS:
-						this.createCharacterDialog();
+						SystemGUI.this.createCharacterDialog();
 						break;
 					case SystemGUI.INVENTORY:
-						this.addToInventoryDialog();
+						SystemGUI.this.addToInventoryDialog();
 						break;
 					default:
 						break;
